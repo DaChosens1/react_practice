@@ -1,36 +1,61 @@
-//Sharing State Between Components #1
-import { useState } from 'react';
+//Passing Data Deeply With Context #1
+import { useState, useContext } from 'react';
+import { places } from './data.js';
+import { getImageUrl } from './utils.js';
+import { ImageSizeContext } from './Context.js';
 
-export default function SyncedInputs() {
-  const [text, setText] = useState('');
+export default function App() {
+  const [isLarge, setIsLarge] = useState(false);
+  const imageSize = isLarge ? 150 : 100;
+  return (
+    <ImageSizeContext
+      value={imageSize}
+    >
+      <label>
+        <input
+          type="checkbox"
+          checked={isLarge}
+          onChange={e => {
+            setIsLarge(e.target.checked);
+          }}
+        />
+        Use large images
+      </label>
+      <hr />
+      <List />
+    </ImageSizeContext>
+  )
+}
 
-  function handleChange(e) {
-    setText(e.target.value);
-  }
-  
+function List() {
+  const listItems = places.map(place =>
+    <li key={place.id}>
+      <Place place={place} />
+    </li>
+  );
+  return <ul>{listItems}</ul>;
+}
+
+function Place({ place }) {
   return (
     <>
-      <Input 
-        label="First input" 
-        value={text}
-        onChange={handleChange}/>
-      <Input label="Second input" 
-        value={text} 
-        onChange={handleChange}/>
+      <PlaceImage place={place} />
+      <p>
+        <b>{place.name}</b>
+        {': ' + place.description}
+      </p>
     </>
   );
 }
 
-function Input({ label, value, onChange}) {
-
+function PlaceImage({ place }) {
+  const imageSize = useContext(ImageSizeContext);
   return (
-    <label>
-      {label}
-      {' '}
-      <input
-        value={value}
-        onChange={onChange}
-      />
-    </label>
+    <img
+      src={getImageUrl(place)}
+      alt={place.name}
+      width={imageSize}
+      height={imageSize}
+    />
   );
 }
